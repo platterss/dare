@@ -1,0 +1,36 @@
+{
+  "name" : "dare",
+  "version-string" : "1.0.0",
+  "builtin-baseline" : "6b3172d1a7be062b3d0278369aac9a0258cefc65",
+  "dependencies" : [
+    {
+      "name": "7zip"
+    },
+    {
+      "name": "cpr"
+    },
+    {
+      "name": "ctre"
+    },
+    {
+      "name" : "date",
+      "features" : [ "remote-api" ]
+    },
+    {
+      "name": "efsw"
+    },
+    {
+      "name" : "fmt",
+      "version>=" : "11.2.0"
+    },
+    {
+      "name": "rapidjson"
+    },
+    {
+      "name": "spdlog"
+    },
+    {
+      "name": "tomlplusplus"
+    }
+  ]
+}

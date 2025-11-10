@@ -1,0 +1,14 @@
+#ifndef VERSION_H
+#define VERSION_H
+
+#include <string_view>
+
+constexpr std::string_view PROJECT_VERSION = "@PROJECT_VERSION@";
+constexpr int PROJECT_VERSION_MAJOR = @PROJECT_VERSION_MAJOR@;
+constexpr int PROJECT_VERSION_MINOR = @PROJECT_VERSION_MINOR@;
+constexpr int PROJECT_VERSION_PATCH = @PROJECT_VERSION_PATCH@;
+
+// Checks the version of the project against the latest GitHub release.
+void checkVersion();
+
+#endif // VERSION_H

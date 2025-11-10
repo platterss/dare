@@ -1,0 +1,33 @@
+# Please check the wiki on the GitHub page for guidance on how to set up the config file.
+# There is extra information about what each setting does if it is not clear by the name.
+# https://github.com/platterss/dare/wiki
+
+[Login]
+username = "12345678"
+password = "super_secret_password_123"
+
+[Term]
+term = "2025 Fall De Anza"
+
+[Settings]
+automatically_waitlist = true
+console_display_cwid = true
+enable_logging = true
+watch_for_open_seats = true
+
+[Notifications]
+enable_notifications = true
+discord_webhook = "https://discord.com/api/webhooks/"
+send_failure_notifications = true
+
+[[Course]]
+primary = "28777"
+backups = ["27488"]
+drop_on_open = "26235"
+prioritize_open_seats = true
+
+[[Course]]
+primary = "27470"
+
+[[Course]]
+primary = "12345"
