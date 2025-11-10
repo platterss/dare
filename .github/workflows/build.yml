@@ -1,0 +1,98 @@
+name: CMake Multiplatform Build
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            vcpkg_triplet: x64-linux
+            name: linux-x64
+          - os: windows-latest
+            vcpkg_triplet: x64-windows-static
+            name: windows-x64
+          - os: macos-latest
+            vcpkg_triplet: arm64-osx
+            name: mac-arm64
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Cache vcpkg packages
+        uses: actions/cache@v4
+        id: vcpkg-cache
+        with:
+          path: ${{ github.workspace }}/vcpkg_cache
+          key: vcpkg-${{ matrix.os }}-${{ hashFiles('vcpkg.json', 'CMakeLists.txt') }}
+          restore-keys: |
+            vcpkg-${{ matrix.os }}-
+
+      - name: Setup vcpkg
+        uses: lukka/run-vcpkg@v11
+        env:
+          VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/vcpkg_cache,readwrite
+
+      - name: Install CMake
+        uses: jwlawson/actions-setup-cmake@v2.0.2
+        with:
+          cmake-version: '3.27'
+
+      - name: Cache build files
+        uses: actions/cache@v4
+        with:
+          path: build
+          key: build-${{ matrix.os }}-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: |
+            build-${{ matrix.os }}-
+
+      - name: Setup MSVC Dev Environment
+        if: runner.os == 'Windows'
+        uses: ilammy/msvc-dev-cmd@v1
+        with:
+          arch: x64
+
+      - name: Set up LLVM & Clang (Windows)
+        if: runner.os == 'Windows'
+        uses: KyleMayes/install-llvm-action@v2.0.7
+        with:
+          version: "20"
+          arch: "x64"
+          env: true
+
+      - name: Configure & Build (Mac & Linux)
+        if: runner.os != 'Windows'
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}
+          cmake --build build --config Release
+
+      - name: Configure & Build (Windows)
+        if: runner.os == 'Windows'
+        shell: powershell
+        run: |
+          cmake -S . -B build -G Ninja `
+            -DCMAKE_C_COMPILER=clang-cl `
+            -DCMAKE_CXX_COMPILER=clang-cl `
+            -DCMAKE_TOOLCHAIN_FILE="${{ github.workspace }}\vcpkg\scripts\buildsystems\vcpkg.cmake" `
+            -DVCPKG_TARGET_TRIPLET="${{ matrix.vcpkg_triplet }}" `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="${{ github.workspace }}"
+          cmake --build build --config Release
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: dare-${{ matrix.name }}
+          path: |
+            dare*
+            configs
+            README.md
