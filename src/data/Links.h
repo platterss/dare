@@ -34,7 +34,7 @@ inline constexpr std::string_view TERMS = "https://reg.oci.fhda.edu/StudentRegis
 } // namespace Terms
 
 namespace GitHub {
-inline constexpr std::string_view REPO_LATEST_RELEASE = "https://api.github.com/repos/platterss/test/releases/latest";
+inline constexpr std::string_view REPO_LATEST_RELEASE = "https://api.github.com/repos/platterss/dare/releases/latest";
 } // namespace GitHub
 
 namespace Discord {
