@@ -46,9 +46,9 @@ jobs:
           VCPKG_BINARY_SOURCES: clear;files,${{ github.workspace }}/vcpkg_cache,readwrite
 
       - name: Install CMake
-        uses: jwlawson/actions-setup-cmake@v2.0.2
+        uses: lukka/get-cmake@latest
         with:
-          cmake-version: '3.27'
+          cmakeVersion: '3.27.9'
 
       - name: Cache build files
         uses: actions/cache@v4
