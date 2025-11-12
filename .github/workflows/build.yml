@@ -19,9 +19,15 @@ jobs:
           - os: windows-latest
             vcpkg_triplet: x64-windows-static
             name: windows-x64
+          - os: windows-11-arm
+            vcpkg_triplet: arm64-windows-static
+            name: windows-arm64
           - os: macos-latest
             vcpkg_triplet: arm64-osx
             name: mac-arm64
+          - os: macos-15-intel
+            vcpkg_triplet: x64-osx
+            name: mac-x64
 
     steps:
       - name: Checkout code
