@@ -72,8 +72,20 @@ jobs:
           arch: "x64"
           env: true
 
-      - name: Configure & Build (Mac & Linux)
-        if: runner.os != 'Windows'
+      - name: Configure & Build (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          cmake -S . -B build -G Ninja \
+            -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
+            -DVCPKG_TARGET_TRIPLET=${{ matrix.vcpkg_triplet }} \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DCMAKE_EXE_LINKER_FLAGS="-static-libstdc++ -static-libgcc" \
+            -DCMAKE_SHARED_LINKER_FLAGS="-static-libstdc++ -static-libgcc" \
+            -DCMAKE_RUNTIME_OUTPUT_DIRECTORY=${{ github.workspace }}
+          cmake --build build --config Release
+
+      - name: Configure & Build (Mac)
+        if: runner.os == 'macOS'
         run: |
           cmake -S . -B build -G Ninja \
             -DCMAKE_TOOLCHAIN_FILE=${{ github.workspace }}/vcpkg/scripts/buildsystems/vcpkg.cmake \
