@@ -68,14 +68,14 @@ jobs:
         if: runner.os == 'Windows'
         uses: ilammy/msvc-dev-cmd@v1
         with:
-          arch: x64
+          arch: ${{ matrix.vcpkg_triplet == 'arm64-windows-static' && 'amd64_arm64' || 'x64' }}
 
       - name: Set up LLVM & Clang (Windows)
         if: runner.os == 'Windows'
         uses: KyleMayes/install-llvm-action@v2.0.7
         with:
           version: "20"
-          arch: "x64"
+          arch: ${{ matrix.vcpkg_triplet == 'arm64-windows-static' && 'arm64' || 'x64' }}
           env: true
 
       - name: Configure & Build (Linux)
