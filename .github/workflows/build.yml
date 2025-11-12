@@ -13,6 +13,9 @@ jobs:
           - os: ubuntu-latest
             vcpkg_triplet: x64-linux
             name: linux-x64
+          - os: ubuntu-24.04-arm
+            vcpkg_triplet: arm64-linux
+            name: linux-arm64
           - os: windows-latest
             vcpkg_triplet: x64-windows-static
             name: windows-x64
