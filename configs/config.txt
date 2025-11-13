@@ -3,7 +3,7 @@
 # https://github.com/platterss/dare/wiki
 
 [Login]
-username = "12345678"
+username = "123"
 password = "super_secret_password_123"
 
 [Term]
