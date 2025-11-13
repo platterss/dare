@@ -113,6 +113,15 @@ jobs:
             -DCMAKE_RUNTIME_OUTPUT_DIRECTORY="${{ github.workspace }}"
           cmake --build build --config Release
 
+      - name: Download tzdata
+        shell: bash
+        run: |
+          mkdir -p tzdata
+          curl -L -o tzdata.tar.gz https://data.iana.org/time-zones/releases/tzdata2025b.tar.gz
+          tar -xzf tzdata.tar.gz -C tzdata
+          curl -L -o tzdata/windowsZones.xml https://raw.githubusercontent.com/unicode-org/cldr/master/common/supplemental/windowsZones.xml
+          rm tzdata.tar.gz
+
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -120,4 +129,5 @@ jobs:
           path: |
             dare*
             configs
+            tzdata
             README.md
