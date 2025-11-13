@@ -33,7 +33,13 @@ std::string extractCourseCode(const rapidjson::Document& json) {
     // courseNumber still uses the old course numbering system instead of the CCN system.
 
     std::string_view courseCode{json["responseDisplay"].GetString(), json["responseDisplay"].GetStringLength()};
-    courseCode.remove_prefix(json["courseTitle"].GetStringLength() + 1); // +1 to remove the space after the title
+
+    int startingOffset = 1; // +1 to remove the space after the title
+    if (courseCode.contains("&amp;")|| courseCode.contains("&#39;")) {
+        startingOffset += 4;
+    }
+
+    courseCode.remove_prefix(json["courseTitle"].GetStringLength() + startingOffset);
     courseCode.remove_suffix(json["sequenceNumber"].GetStringLength() + 2); // +2 to remove ", " before section number
 
     // The dot looks ugly when we put it next to a hyphen

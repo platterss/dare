@@ -51,6 +51,7 @@ void setupDate() {
         auto& db = date::get_tzdb_list();
     } catch (const std::exception& e) {
         spdlog::error("Failed to initialize timezone database: {}", e.what());
+        throw;
     }
 }
 
