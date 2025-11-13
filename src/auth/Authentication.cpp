@@ -51,7 +51,9 @@ void login(SessionManager& sessionManager, const std::string& username, const st
     // If credentials are invalid, it will redirect (HTTP 302 Found) to `e1s2`,
     // `e1s3`, etc. depending on the number of unsuccessful login attempts.
     // Otherwise, it will return HTTP 200 OK.
-    if (response.status_code == cpr::status::HTTP_FOUND) {
+    if (response.status_code == cpr::status::HTTP_FOUND &&
+        response.header.contains("Location") &&
+        response.header.at("Location").starts_with("/idp/profile/SAML2/POST/SSO?execution=e1s")) {
         throw UnrecoverableException{fmt::format(
             "Invalid credentials for CWID '{}'. Please check your username and password.", username)};
     }
