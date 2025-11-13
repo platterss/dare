@@ -399,7 +399,7 @@ void processCourses(Task& task) {
 void sleepForRandomTime(Task& task, std::uniform_real_distribution<>& dist, std::mt19937& gen) {
     const double sleepDuration = dist(gen);
     task.logger.info("Checking again in {:.2f} seconds.", sleepDuration);
-    task.scheduler.pause(task.logger, std::chrono::duration<double>{sleepDuration});
+    task.scheduler.pauseFor(task.logger, std::chrono::duration<double>{sleepDuration});
     task.scheduler.throwIfStopped();
 }
 

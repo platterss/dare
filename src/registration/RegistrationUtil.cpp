@@ -79,9 +79,9 @@ bool registrationIsOpen(const SessionManager& sessionManager, const std::string&
 }
 
 void waitUntilPortalOnline(Task& task) {
-    static constexpr std::chrono::seconds WAIT_TIME{5};
+    using namespace std::chrono_literals;
     while (portalIsDown()) {
-        task.scheduler.pause(task.logger, WAIT_TIME, "for portal to come back online");
+        task.scheduler.pauseFor(task.logger, 5s, "for portal to come back online");
     }
 }
 } // namespace
@@ -137,11 +137,11 @@ void prepareTask(Task& task) {
     task.scheduler.sleepUntilOpen(task.logger);
 
     // Sometimes, registration doesn't actually open right at the time it says it does. Liars.
-    static constexpr std::chrono::seconds WAIT_TIME{1};
     while (!registrationIsOpen(task.sessionManager, task.config.termCode)) {
+        using namespace std::chrono_literals;
         task.scheduler.throwIfStopped();
         task.logger.info("Registration not yet open. Waiting...");
-        task.scheduler.pause(task.logger, WAIT_TIME);
+        task.scheduler.pauseFor(task.logger, 1s);
     }
 
     task.logger.info("Registration is open.");

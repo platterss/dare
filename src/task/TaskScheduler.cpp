@@ -81,25 +81,23 @@ std::chrono::system_clock::time_point TaskScheduler::getRegistrationTimePoint() 
 
 void TaskScheduler::sleepUntilReauthentication(const TaskLogger& logger) {
     using namespace std::chrono;
-    static constexpr auto SECONDS_BEFORE = 5s;
-    const auto waitDuration = duration_cast<seconds>(m_registrationTimePoint - SECONDS_BEFORE - system_clock::now());
+    const auto targetTime = m_registrationTimePoint - 5s;
 
-    if (waitDuration < 0s) {
+    if (system_clock::now() >= targetTime) {
         return;
     }
 
-    pause(logger, waitDuration, "before reauthenticating");
+    pauseUntil(logger, targetTime, "before reauthenticating");
 }
 
 void TaskScheduler::sleepUntilOpen(const TaskLogger& logger) {
     using namespace std::chrono;
-    const auto waitDuration = duration_cast<seconds>(m_registrationTimePoint - system_clock::now());
 
-    if (waitDuration < 0s) {
+    if (system_clock::now() >= m_registrationTimePoint) {
         return;
     }
 
-    pause(logger, waitDuration, "for registration to open");
+    pauseUntil(logger, m_registrationTimePoint, "for registration to open");
 }
 
 void TaskScheduler::requestStop() noexcept {
@@ -113,7 +111,22 @@ void TaskScheduler::throwIfStopped() const {
     }
 }
 
-void TaskScheduler::pause(const TaskLogger& logger, const std::chrono::duration<double> dur, const std::string& msg) {
+void TaskScheduler::pauseUntil(const TaskLogger& logger, const std::chrono::system_clock::time_point end, const std::string& msg) {
+    if (!msg.empty()) {
+        if (const auto dur = end - std::chrono::system_clock::now(); dur.count() > 0) {
+            const std::chrono::hh_mm_ss hms{dur};
+            logger.info("Pausing for {:02}h {:02}m {:02}s {}.",
+                hms.hours().count(), hms.minutes().count(), hms.seconds().count(), msg);
+        }
+    }
+
+    std::unique_lock lock{m_stopMutex};
+    if (m_stopCv.wait_until(lock, end, [this] { return m_stopRequested.load(); })) {
+        logger.info("Stop requested. Waking up early.");
+    }
+}
+
+void TaskScheduler::pauseFor(const TaskLogger& logger, const std::chrono::duration<double> dur, const std::string& msg) {
     if (!msg.empty()) {
         const std::chrono::hh_mm_ss hms{dur};
         logger.info("Pausing for {:02}h {:02}m {:02}s {}.",

@@ -17,7 +17,8 @@ public:
     void sleepUntilOpen(const TaskLogger& logger);
     void requestStop() noexcept;
     void throwIfStopped() const;
-    void pause(const TaskLogger& logger, std::chrono::duration<double> dur, const std::string& msg = "");
+    void pauseUntil(const TaskLogger& logger, std::chrono::system_clock::time_point end, const std::string& msg = "");
+    void pauseFor(const TaskLogger& logger, std::chrono::duration<double> dur, const std::string& msg = "");
 
 private:
     std::string m_registrationTimeStr;
