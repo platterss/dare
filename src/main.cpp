@@ -45,7 +45,13 @@ extern "C" void stopTasks(int) {
 #endif
 
 void setupDate() {
-    date::set_install(getExecutableDirectory() + "/tzdata");
+    try {
+        const auto tzdataPath = std::filesystem::path(getExecutableDirectory()) / "tzdata";
+        date::set_install(tzdataPath.string());
+        auto& db = date::get_tzdb_list();
+    } catch (const std::exception& e) {
+        spdlog::error("Failed to initialize timezone database: {}", e.what());
+    }
 }
 
 void setupSignalHandlers() {
