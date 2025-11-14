@@ -20,7 +20,7 @@ std::string getHiddenInput(const std::string_view html) {
         return match.get<HIDDEN_INPUT_VALUE>().to_string();
     }
 
-    throw std::runtime_error{"Could not find hidden inputs during authentication."};
+    throw std::runtime_error{"Could not find hidden inputs during authentication"};
 }
 
 // Fetches and saves the user's registration time if it hasn't already been saved.
@@ -76,9 +76,8 @@ bool idpSSO(SessionManager& sessionManager) {
     // Very rarely, it'll redirect you to '/ssomanager/ui/error.jsp'
     // telling you there was an "Error validating SAML message."
     // The easy fix is just to clear cookies and log in again.
-
-    // Response code is always HTTP 302 (Found) so we don't need to check it.
-    return Link::Auth::LOGIN_PAGE.contains(response.header.at("Location"));
+    return response.status_code == cpr::status::HTTP_FOUND &&
+        Link::Auth::LOGIN_PAGE.contains(response.header.at("Location"));
 }
 
 void ssbLoginRedirect(SessionManager& sessionManager) {
