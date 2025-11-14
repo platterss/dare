@@ -84,7 +84,11 @@ static std::vector<Course> readCourses(const toml::parse_result& parsed) {
             course.prioritizeOpenSeats = **prioritizeOpenSeats;
         }
 
-        courses.push_back(std::move(course));
+        if (const auto waitlist = table->get_as<bool>("waitlist")) {
+            course.waitlist = **waitlist;
+        }
+
+        courses.emplace_back(std::move(course));
     }
 
     return courses;
@@ -102,7 +106,6 @@ static TaskConfig readSettings(const toml::parse_result& parsed) {
     taskConfig.termCode = getTermCode(taskConfig.term);
 
     const auto settings = parsed["Settings"];
-    taskConfig.automaticallyWaitlist = settings["automatically_waitlist"].value_or(taskConfig.automaticallyWaitlist);
     taskConfig.consoleDisplayCWID = settings["console_display_cwid"].value_or(taskConfig.consoleDisplayCWID);
     taskConfig.enableLogging = settings["enable_logging"].value_or(taskConfig.enableLogging);
     taskConfig.watchForOpenSeats = settings["watch_for_open_seats"].value_or(taskConfig.watchForOpenSeats);

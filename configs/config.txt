@@ -10,7 +10,6 @@ password = "super_secret_password_123"
 term = "2025 Fall De Anza"
 
 [Settings]
-automatically_waitlist = true
 console_display_cwid = true
 enable_logging = true
 watch_for_open_seats = true
@@ -25,9 +24,11 @@ primary = "28777"
 backups = ["27488"]
 drop_on_open = "26235"
 prioritize_open_seats = true
+waitlist = true
 
 [[Course]]
 primary = "27470"
+waitlist = true
 
 [[Course]]
 primary = "12345"

@@ -192,7 +192,8 @@ void addCoursesToBatch(Task& task, rapidjson::Document& cart, rapidjson::Documen
         // - "internal-remove" (Remove).
         // "RW" and "internal-remove" always appear, but "WL" only appears if the course is waitlisted.
         auto& model = course["model"];
-        if (task.config.automaticallyWaitlist && model["properties"]["registrationActions"].Size() == 3) {
+        if (model["properties"]["registrationActions"].Size() == 3 &&
+            task.courseManager.canWaitlistCourse(model["courseReferenceNumber"].GetString())) {
             model["selectedAction"].SetString("WL", cart.GetAllocator());
         }
 
@@ -344,7 +345,7 @@ std::vector<CrnRef> getCandidates(const Task& task, Course& course) {
 
     std::vector<CrnRef> candidates;
     for (auto& result : toCheck) {
-        if (crnIsAddable(result.get().enrollmentInfo.status, task.config.automaticallyWaitlist)) {
+        if (crnIsAddable(result.get().enrollmentInfo.status, course.waitlist)) {
             candidates.emplace_back(result.get());
         }
     }

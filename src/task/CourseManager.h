@@ -19,6 +19,7 @@ public:
 
     void populateCourseDetails(cpr::Session& session, const std::string& termCode);
     void displayCourses(const TaskLogger& logger) const;
+    bool canWaitlistCourse(const std::string& crn) const;
 
     std::vector<std::pair<std::string, std::string>>& getNotificationQueue();
     void enqueueNotification(std::string title, std::string message);
@@ -44,6 +45,7 @@ public:
 
 private:
     std::vector<Course> m_courses;
+    std::unordered_set<std::string> m_waitlists;
 
     std::vector<std::pair<std::string, std::string>> m_notificationQueue;
 

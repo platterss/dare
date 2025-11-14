@@ -43,6 +43,7 @@ struct Course {
     std::vector<CRN> backups;
     CRN drop;
     bool prioritizeOpenSeats = false;
+    bool waitlist = true;
 
     bool operator==(const std::string& crn) const {
         return primary == crn || drop == crn ||

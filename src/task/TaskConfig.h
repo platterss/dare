@@ -10,7 +10,6 @@ struct TaskConfig {
     std::string password;
     std::string term;
     std::string termCode;
-    bool automaticallyWaitlist = true;
     bool consoleDisplayCWID = true;
     bool enableLogging = true;
     bool watchForOpenSeats = true;

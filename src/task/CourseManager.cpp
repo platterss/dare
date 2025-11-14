@@ -69,7 +69,17 @@ std::string getCourseCode(cpr::Session& session, const std::string& termCode, CR
 }
 } // namespace
 
-CourseManager::CourseManager(std::vector<Course>&& courses) : m_courses(std::move(courses)) {}
+CourseManager::CourseManager(std::vector<Course>&& courses) : m_courses(std::move(courses)) {
+    for (const Course& course : m_courses) {
+        if (course.waitlist) {
+            m_waitlists.insert(course.primary.value);
+
+            for (const CRN& backup : course.backups) {
+                m_waitlists.insert(backup.value);
+            }
+        }
+    }
+}
 
 void CourseManager::populateCourseDetails(cpr::Session& session, const std::string& termCode) {
     std::vector<std::string> invalidCourses;
@@ -112,6 +122,10 @@ void CourseManager::displayCourses(const TaskLogger& logger) const {
     }
 }
 
+bool CourseManager::canWaitlistCourse(const std::string& crn) const {
+    return m_waitlists.contains(crn);
+}
+
 std::vector<std::pair<std::string, std::string>>& CourseManager::getNotificationQueue() {
     return m_notificationQueue;
 }
@@ -139,6 +153,11 @@ void CourseManager::removeCourse(const std::string& crn) {
     });
 
     if (it != m_courses.end()) {
+        m_waitlists.erase(it->primary.value);
+        for (const CRN& backup : it->backups) {
+            m_waitlists.erase(backup.value);
+        }
+
         m_courses.erase(it);
     }
 }
