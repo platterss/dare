@@ -34,7 +34,8 @@ void notifyResults(Task& task) {
 }
 
 std::optional<std::string_view> ineligibleToRegisterReason(const std::string_view regMessage) {
-    static constexpr std::array<std::string_view, 11> INELIGIBLE_ERROR_MESSAGES = {
+    static constexpr std::array<std::string_view, 12> INELIGIBLE_ERROR_MESSAGES = {
+        "Corequisite",
         "Prereq not met",
         "Class passed. No repeats",
         "Time conflict. Registration prohibited",
