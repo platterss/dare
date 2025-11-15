@@ -39,10 +39,10 @@ void selfServiceSSO(SessionManager& sessionManager) {
     );
 }
 
-void login(SessionManager& sessionManager, const std::string& username, const std::string& password) {
+void login(SessionManager& sessionManager, const std::string& cwid, const std::string& password) {
     const auto response = sendRequest(sessionManager.getSession(), RequestMethod::POST, Link::Auth::LOGIN_PAGE,
         cpr::Payload{
-            {"j_username", username},
+            {"j_username", cwid},
             {"j_password", password},
             {"_eventId_proceed", ""}
         }
@@ -55,7 +55,7 @@ void login(SessionManager& sessionManager, const std::string& username, const st
         response.header.contains("Location") &&
         response.header.at("Location").starts_with("/idp/profile/SAML2/POST/SSO?execution=e1s")) {
         throw UnrecoverableException{fmt::format(
-            "Invalid credentials for CWID '{}'. Please check your username and password.", username)};
+            "Invalid credentials for CWID '{}'. Please check your CWID and password.", cwid)};
     }
 
     sessionManager.samlResponse = getHiddenInput(response.text);
@@ -118,7 +118,7 @@ void authenticate(Task& task) {
             }
 
             getLoginPage(task.sessionManager.getSession());
-            login(task.sessionManager, task.config.username, task.config.password);
+            login(task.sessionManager, task.config.cwid, task.config.password);
             selfServiceSSO(task.sessionManager);
             visitRegistrationDashboard(task.sessionManager.getSession());
             fetchRegistrationTime(task);

@@ -6,7 +6,7 @@
 #include <string>
 
 struct TaskConfig {
-    std::string username;
+    std::string cwid;
     std::string password;
     std::string term;
     std::string termCode;

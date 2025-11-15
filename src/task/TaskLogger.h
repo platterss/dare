@@ -11,7 +11,7 @@
 class TaskLogger {
 public:
     TaskLogger() = default;
-    TaskLogger(std::string username, std::string_view termCode, bool logFile, bool printIds);
+    TaskLogger(std::string cwid, std::string_view termCode, bool logFile, bool printIds);
     ~TaskLogger();
 
     void debug(const std::string& str) const {

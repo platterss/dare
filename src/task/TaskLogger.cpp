@@ -69,8 +69,8 @@ std::string makeTaskId(std::string base, const std::string_view termCode) {
 }
 } // namespace
 
-TaskLogger::TaskLogger(std::string username, const std::string_view termCode, const bool logFile, const bool printIds)
-    : m_taskID{makeTaskId(std::move(username), termCode)} {
+TaskLogger::TaskLogger(std::string cwid, const std::string_view termCode, const bool logFile, const bool printIds)
+    : m_taskID{makeTaskId(std::move(cwid), termCode)} {
     if (logFile) {
         const std::filesystem::path logsDirectory = getExecutableDirectory() + "/logs";
         std::filesystem::create_directory(logsDirectory);

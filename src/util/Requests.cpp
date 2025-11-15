@@ -25,7 +25,7 @@ constexpr void checkResponseCode(const long code) {
     throw std::runtime_error{errorMessage};
 }
 
-std::string createDiscordBody(const std::string& username, const std::string& title, const std::string& message) {
+std::string createDiscordBody(const std::string& cwid, const std::string& title, const std::string& message) {
     rapidjson::Document document;
     document.SetObject();
     auto& allocator = document.GetAllocator();
@@ -36,7 +36,7 @@ std::string createDiscordBody(const std::string& username, const std::string& ti
     embed.AddMember("timestamp", rapidjson::Value(getCurrentUTCTime().c_str(), allocator), allocator);
 
     rapidjson::Value footer{rapidjson::kObjectType};
-    footer.AddMember("text", rapidjson::Value(username.c_str(), allocator), allocator);
+    footer.AddMember("text", rapidjson::Value(cwid.c_str(), allocator), allocator);
     embed.AddMember("footer", footer, allocator);
 
     rapidjson::Value embeds{rapidjson::kArrayType};
@@ -85,7 +85,7 @@ void sendDiscordNotification(const Task& task, const std::string& title, const s
 
     try {
         sendRequest(session, RequestMethod::POST, task.config.discordWebhook,
-            cpr::Body{createDiscordBody(task.config.username, title, message)}
+            cpr::Body{createDiscordBody(task.config.cwid, title, message)}
         );
     } catch (const std::exception& e) {
         task.logger.error("Discord Webhook {}", e.what());

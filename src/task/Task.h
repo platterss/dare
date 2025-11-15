@@ -16,7 +16,7 @@ struct Task {
     explicit Task(std::pair<TaskConfig, std::vector<Course>>&& loaded)
         : config{std::move(loaded.first)},
           courseManager{std::move(loaded.second)},
-          logger{config.username, config.termCode, config.enableLogs, config.displayCwid} {}
+          logger{config.cwid, config.termCode, config.enableLogs, config.displayCwid} {}
 
     TaskConfig config;
     CourseManager courseManager;

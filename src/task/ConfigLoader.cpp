@@ -13,14 +13,14 @@ static bool discordWebhookValid(const std::string_view webhook) {
 }
 
 static void validateConfig(TaskConfig& config) {
-    if (config.username.empty() || config.password.empty() || config.term.empty()) {
+    if (config.cwid.empty() || config.password.empty() || config.term.empty()) {
         throw std::runtime_error{"Missing required fields in config file."};
     }
 
-    static constexpr std::size_t USERNAME_LENGTH = 8;
-    if (config.username.size() != USERNAME_LENGTH) {
+    static constexpr std::size_t CWID_LENGTH = 8;
+    if (config.cwid.size() != CWID_LENGTH) {
         throw std::runtime_error{fmt::format("CWID has wrong length (expected {}, got {}).",
-            USERNAME_LENGTH, config.username.size())};
+            CWID_LENGTH, config.cwid.size())};
     }
 
     config.enableNotifications = discordWebhookValid(config.discordWebhook);
@@ -95,7 +95,7 @@ static TaskConfig readSettings(const toml::parse_result& parsed) {
     TaskConfig taskConfig;
 
     const auto loginInfo = parsed["Login"];
-    taskConfig.username = loginInfo["username"].value_or("");
+    taskConfig.cwid = loginInfo["cwid"].value_or("");
     taskConfig.password = loginInfo["password"].value_or("");
 
     const auto term = parsed["Term"];
