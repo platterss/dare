@@ -10,14 +10,13 @@ password = "super_secret_password_123"
 term = "2025 Fall De Anza"
 
 [Settings]
-console_display_cwid = true
-enable_logging = true
+display_cwid = true
+enable_logs = true
 watch_for_open_seats = true
 
 [Notifications]
 enable_notifications = true
 discord_webhook = "https://discord.com/api/webhooks/"
-send_failure_notifications = true
 
 [[Course]]
 primary = "28777"

@@ -10,12 +10,11 @@ struct TaskConfig {
     std::string password;
     std::string term;
     std::string termCode;
-    bool consoleDisplayCWID = true;
-    bool enableLogging = true;
+    bool displayCwid = true;
+    bool enableLogs = true;
     bool watchForOpenSeats = true;
     bool enableNotifications = false;
     std::string discordWebhook;
-    bool notifyFailures = false;
 
     std::string path;
 };

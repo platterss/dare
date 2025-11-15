@@ -108,9 +108,7 @@ void waitOutError(Task& task, const std::string& message) {
 
 void notifyFailure(const Task& task, const std::string& title, const std::string& message) {
     task.logger.error(title + " - " + message);
-    if (task.config.notifyFailures) {
-        sendDiscordNotification(task, title, message);
-    }
+    sendDiscordNotification(task, title, message);
 }
 
 void visitRegistrationDashboard(cpr::Session& session) {

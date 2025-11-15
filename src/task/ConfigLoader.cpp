@@ -23,10 +23,7 @@ static void validateConfig(TaskConfig& config) {
             USERNAME_LENGTH, config.username.size())};
     }
 
-    if (!discordWebhookValid(config.discordWebhook)) {
-        config.enableNotifications = false;
-        config.notifyFailures = false;
-    }
+    config.enableNotifications = discordWebhookValid(config.discordWebhook);
 }
 
 static void ensureUniqueCrn(std::unordered_set<std::string>& seenCrns, const std::string& crn) {
@@ -106,14 +103,13 @@ static TaskConfig readSettings(const toml::parse_result& parsed) {
     taskConfig.termCode = getTermCode(taskConfig.term);
 
     const auto settings = parsed["Settings"];
-    taskConfig.consoleDisplayCWID = settings["console_display_cwid"].value_or(taskConfig.consoleDisplayCWID);
-    taskConfig.enableLogging = settings["enable_logging"].value_or(taskConfig.enableLogging);
+    taskConfig.displayCwid = settings["display_cwid"].value_or(taskConfig.displayCwid);
+    taskConfig.enableLogs = settings["enable_logs"].value_or(taskConfig.enableLogs);
     taskConfig.watchForOpenSeats = settings["watch_for_open_seats"].value_or(taskConfig.watchForOpenSeats);
 
     const auto notifSettings = parsed["Notifications"];
     taskConfig.enableNotifications = notifSettings["enable_notifications"].value_or(taskConfig.enableNotifications);
     taskConfig.discordWebhook = notifSettings["discord_webhook"].value_or("");
-    taskConfig.notifyFailures = notifSettings["send_failure_notifications"].value_or(taskConfig.notifyFailures);
 
     validateConfig(taskConfig);
 
