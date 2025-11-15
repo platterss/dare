@@ -43,8 +43,7 @@ std::future<void> launchAsyncTask(Task& task) {
         try {
             prepareTask(task);
             registrationLoop(task);
-        } catch (const TaskCancelled& e) {
-            notifyFailure(task, "Task Cancelled", e.what());
+        } catch (const TaskCancelled&) {
         } catch (const std::exception& e) {
             notifyFailure(task, "Exiting Task", e.what());
         }
