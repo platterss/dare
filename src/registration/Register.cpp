@@ -13,7 +13,6 @@
 #include <rapidjson/writer.h>
 
 #include <algorithm>
-#include <array>
 #include <expected>
 #include <optional>
 #include <random>
@@ -34,19 +33,21 @@ void notifyResults(Task& task) {
 }
 
 std::optional<std::string_view> ineligibleToRegisterReason(const std::string_view regMessage) {
-    static constexpr std::array<std::string_view, 12> INELIGIBLE_ERROR_MESSAGES = {
-        "Corequisite",
-        "Prereq not met",
-        "Class passed. No repeats",
-        "Time conflict. Registration prohibited",
-        "Exceeded unit maximum",
-        "The add period is over",
-        "Duplicate Course",
-        "Duplicate Equivalent",
-        "Authorization required",
-        "Cohort Restriction",
-        "Program Restriction",
-        "Special Projects"
+    using namespace std::literals;
+
+    static constexpr std::string_view INELIGIBLE_ERROR_MESSAGES[] = {
+        "Corequisite"sv,
+        "Prereq not met"sv,
+        "Class passed. No repeats"sv,
+        "Time conflict. Registration prohibited"sv,
+        "Exceeded unit maximum"sv,
+        "The add period is over"sv,
+        "Duplicate Course"sv,
+        "Duplicate Equivalent"sv,
+        "Authorization required"sv,
+        "Cohort Restriction"sv,
+        "Program Restriction"sv,
+        "Special Projects"sv
     };
 
     for (const auto& errorMessage : INELIGIBLE_ERROR_MESSAGES) {

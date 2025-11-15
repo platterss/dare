@@ -8,11 +8,13 @@
 #include <algorithm>
 #include <ranges>
 #include <string>
+#include <string_view>
 #include <vector>
 
 struct CRN {
     std::string value;
     std::string courseCode;
+    std::string_view sectionWarning;
     EnrollmentInfo enrollmentInfo;
 
     CRN() = default;

@@ -11,6 +11,59 @@
 #include <ranges>
 
 namespace {
+std::string_view getCourseSectionWarning(const std::string_view termCode, const std::string_view displayName) {
+    using namespace std::literals;
+
+    static constexpr std::pair<std::string_view, std::string_view> foothillSectionCodes[] = {
+        {"MP"sv, "This course is only open to students in the Math Performance Success program."sv},
+        {"C"sv, "This course requires you to enroll in a corequisite. See the course description for more details."sv},
+        {"D"sv, "This course is only open to certain high school students. Normal college students cannot register."sv}
+    };
+
+    static constexpr std::pair<std::string_view, std::string_view> deAnzaSectionCodes[] = {
+        {"FY"sv, "This course is only open to students in the First Year Experience program."sv},
+        {"MP"sv, "This course is only open to students in the Math Performance Success program."sv},
+        {"UM"sv, "This course is only open to students in the Umoja program."sv},
+        {"A"sv, "This course is only open to students in the Study Abroad program."sv},
+        {"C"sv, "This course is only open to students in the CDE Apprenticeship program."sv},
+        {"D"sv, "This course is in the Learning in Communities program and requires a corequisite."sv},
+        {"G"sv, "This course is only open to certain high school students. Normal college students cannot register."sv},
+        {"H"sv, "This course is only open to EOPS/CARE/Next Up/Guardian Scholars."sv},
+        {"J"sv, "This course is an Internship/Externship class."sv},
+        {"K"sv, "This course is only open to students in the LEAD program."sv},
+        {"L"sv, "This course is only open to students in the CYLC/Social Justice program."sv},
+        {"M"sv, "This course is only open to students in the Mellon Scholars program."sv},
+        {"N"sv, "This course is only open to students in the International Students program."sv},
+        {"P"sv, "This course is only open to students in the Puente program."sv},
+        {"Q"sv, "This course requires you to enroll in a corequisite. See the course description for more details."sv},
+        {"R"sv, "This course is only open to students in the REACH program or is a Special Projects course."sv},
+        {"S"sv, "This course is only open to students in the Pride Learning Community."sv},
+        {"T"sv, "This course is only open to students in the Older Adult program."sv},
+        {"V"sv, "This course is only open to students in the IMPACT AAPI program."sv},
+        {"W"sv, "This course is only open to students in the FLOW program."sv}
+    };
+
+    const std::string_view sectionNumber = displayName.substr(displayName.rfind(", ") + 2);
+
+    // Foothill
+    if (termCode.back() == '1') {
+        for (auto [code, definition] : foothillSectionCodes) {
+            if (sectionNumber.contains(code)) {
+                return definition;
+            }
+        }
+    }
+
+    // De Anza
+    for (auto [code, definition] : deAnzaSectionCodes) {
+        if (sectionNumber.contains(code)) {
+            return definition;
+        }
+    }
+
+    return {};
+}
+
 std::string extractCourseCode(const rapidjson::Document& json) {
     // The JSON looks something like this:
     //
@@ -50,7 +103,7 @@ std::string extractCourseCode(const rapidjson::Document& json) {
     return std::string{courseCode};
 }
 
-std::string getCourseCode(cpr::Session& session, const std::string& termCode, CRN& crn) {
+rapidjson::Document getCourseData(cpr::Session& session, const std::string& termCode, CRN& crn) {
     const auto response = sendRequest(session, RequestMethod::GET, Link::Classes::SECTION_DETAILS,
         cpr::Parameters{
             {"courseReferenceNumber", crn.value},
@@ -60,12 +113,12 @@ std::string getCourseCode(cpr::Session& session, const std::string& termCode, CR
 
     // Only really happens if the CRN doesn't exist for the given term.
     // It's a nice way to minimize requests since we don't have to do a separate validation check.
-    const rapidjson::Document json = parseJsonResponse(response.text);
+    rapidjson::Document json = parseJsonResponse(response.text);
     if (json.HasMember("success") && !json["success"].GetBool()) {
         throw UnrecoverableException{fmt::format("Failed to get course details for CRN {}.", crn.value)};
     }
 
-    return extractCourseCode(json);
+    return json;
 }
 } // namespace
 
@@ -84,21 +137,24 @@ CourseManager::CourseManager(std::vector<Course>&& courses) : m_courses(std::mov
 void CourseManager::populateCourseDetails(cpr::Session& session, const std::string& termCode) {
     std::vector<std::string> invalidCourses;
 
-    auto attemptAssignment = [&](CRN& crn) {
+    auto populateDetails = [&](CRN& crn) {
+        if (crn.empty()) {
+            return;
+        }
+
         try {
-            crn.courseCode = getCourseCode(session, termCode, crn);
+            const rapidjson::Document courseData = getCourseData(session, termCode, crn);
+            crn.courseCode = extractCourseCode(courseData);
+            crn.sectionWarning = getCourseSectionWarning(termCode, courseData["responseDisplay"].GetString());
         } catch (const UnrecoverableException&) { // Always returns HTTP 500 upon error
             invalidCourses.push_back(crn.value);
         }
     };
 
     for (Course& course : m_courses) {
-        attemptAssignment(course.primary);
-        std::ranges::for_each(course.backups, attemptAssignment);
-
-        if (!course.drop.empty()) {
-            attemptAssignment(course.drop);
-        }
+        populateDetails(course.primary);
+        std::ranges::for_each(course.backups, populateDetails);
+        populateDetails(course.drop);
     }
 
     if (!invalidCourses.empty()) {
@@ -109,11 +165,22 @@ void CourseManager::populateCourseDetails(cpr::Session& session, const std::stri
 }
 
 void CourseManager::displayCourses(const TaskLogger& logger) const {
+    auto printWarning = [&](const CRN& crn) {
+        if (crn.sectionWarning.empty()) {
+            return;
+        }
+
+        logger.info("[WARNING] {} (CRN {}) has enrollment restrictions: {}",
+            crn.courseCode, crn.value, crn.sectionWarning);
+    };
+
     for (const Course& course : m_courses) {
         logger.info("{} (Primary)", course.primary);
+        printWarning(course.primary);
 
         for (const CRN& backup : course.backups) {
             logger.info("{} (Backup for {})", backup, course.primary.value);
+            printWarning(backup);
         }
 
         if (!course.drop.empty()) {
