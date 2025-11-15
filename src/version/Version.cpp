@@ -67,7 +67,7 @@ void checkVersion() {
 
     if (const auto version = parseVersion(latestVersion); !atLeastCurrent(version)) {
         console->info("A new version of DARE is available ({}). You are on v{}.", latestVersion, PROJECT_VERSION);
-        console->info("You can find the latest version at https://github.com/platterss/dare.");
+        console->info("You can find the latest version at https://github.com/platterss/dare/releases/latest.");
         console->info("Updating is strongly recommended as there may have been MyPortal changes that break older versions of DARE.");
         console->info("Or maybe there are just some cool new features and bug fixes. Check the changelog for more information.");
     }
