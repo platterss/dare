@@ -32,7 +32,7 @@ void notifyResults(Task& task) {
     task.courseManager.getNotificationQueue().clear();
 }
 
-std::optional<std::string_view> ineligibleToRegisterReason(const std::string_view regMessage) {
+bool ineligibleToRegister(const std::string_view regMessage) {
     using namespace std::literals;
 
     static constexpr std::string_view INELIGIBLE_ERROR_MESSAGES[] = {
@@ -47,16 +47,13 @@ std::optional<std::string_view> ineligibleToRegisterReason(const std::string_vie
         "Authorization required"sv,
         "Cohort Restriction"sv,
         "Program Restriction"sv,
+        "Division/Dept Permission"sv,
         "Special Projects"sv
     };
 
-    for (const auto& errorMessage : INELIGIBLE_ERROR_MESSAGES) {
-        if (regMessage.contains(errorMessage)) {
-            return std::optional<std::string_view>{std::in_place, errorMessage};
-        }
-    }
-
-    return std::optional<std::string_view>{std::nullopt};
+    return std::ranges::any_of(INELIGIBLE_ERROR_MESSAGES, [&](const auto& message) {
+        return regMessage.contains(message);
+    });
 }
 
 std::string getDescription(const std::string_view statusDescription) {
@@ -86,10 +83,9 @@ void processUpdate(Task& task, const rapidjson::Value& update) {
         task.courseManager.removeCourse(crn);
     } else if (status == "Errors Preventing Registration") {
         const auto& error = update["messages"][0]["message"]; // First one is usually the most important
-        std::string_view errorMessage{error.GetString(), error.GetStringLength()};
+        const std::string_view errorMessage{error.GetString(), error.GetStringLength()};
 
-        if (const auto reason = ineligibleToRegisterReason(errorMessage)) {
-            errorMessage = *reason;
+        if (ineligibleToRegister(errorMessage)) {
             task.courseManager.removeCourse(crn);
         }
 
