@@ -55,9 +55,11 @@ std::string_view getCourseSectionWarning(const std::string_view termCode, const 
     }
 
     // De Anza
-    for (auto [code, definition] : deAnzaSectionCodes) {
-        if (sectionNumber.contains(code)) {
-            return definition;
+    if (termCode.back() == '2') {
+        for (auto [code, definition] : deAnzaSectionCodes) {
+            if (sectionNumber.contains(code)) {
+                return definition;
+            }
         }
     }
 
