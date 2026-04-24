@@ -1,4 +1,14 @@
+> [!WARNING]
+> 
+> Unfortunately, DARE no longer works because authentication now uses
+> Cloudflare Turnstile. I'm not really sure how to automatically get past it (or if it's even possible to) at this point
+> in time, but maybe I'll revisit it later.
+> 
+> The code (currently) still works for registration for this particular flavor of Ellucian Banner;
+> it's just FHDA's authentication that it cannot get through.
+
 # DARE
+
 Automated registration tool for Foothill and De Anza College.
 
 ## Features
