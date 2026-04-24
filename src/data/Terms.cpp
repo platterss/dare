@@ -15,12 +15,12 @@ std::unordered_map<std::string, std::string> getTerms() {
         cpr::Parameters{
             {"searchTerm", ""},
             {"offset", "1"},
-            {"max", "4"},
+            {"max", "12"},
         }
     ).text;
 
     std::unordered_map<std::string, std::string> terms;
-    terms.reserve(4);
+    terms.reserve(12);
 
     for (const rapidjson::Document document = parseJsonResponse(responseText);
             const auto& term : document.GetArray()) {
