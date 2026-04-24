@@ -93,6 +93,10 @@ int main() {
 
     checkVersion();
 
+    spdlog::get("console")->warn("DARE no longer works due to unsolvable issues with authentication.");
+    spdlog::get("console")->warn("The program will still attempt to run, but will fail to authenticate.");
+    spdlog::get("console")->warn("Check the GitHub repo for additional details.");
+
     g_taskManager = std::make_unique<TaskManager>();
     g_taskManager->start();
 }
